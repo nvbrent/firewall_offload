@@ -9,11 +9,12 @@ COLOR_OFF="\033[0m"
 
 # Bridges are for control-plane gRPC traffic, and as a fall-back
 # means of routing to/from the VFs in case of DPU software failure.
+# High-availability requires one additional VF per PF.
 # Note PF0SF0 has netdev enp3s0f0s0 and representor en3f0pf0sf0.
 OVS_BRIDGE0=${OVS_BRIDGE1:-"ovsbr0"}
-OVS_BRIDGE0_PORTS=${OVS_BRIDGE0_PORTS:-"p0 en3f0pf0sf0 pf0vf0 pf0vf1"}
+OVS_BRIDGE0_PORTS=${OVS_BRIDGE0_PORTS:-"p0 en3f0pf0sf0 pf0vf0 pf0vf1 pf0vf2"}
 OVS_BRIDGE1=${OVS_BRIDGE2:-"ovsbr1"}
-OVS_BRIDGE1_PORTS=${OVS_BRIDGE1_PORTS:-"p1 pf1vf0"}
+OVS_BRIDGE1_PORTS=${OVS_BRIDGE1_PORTS:-"p1 pf1vf0 pf1vf1"}
 GRPC_IP_MASK=169.254.33.51/24
 
 # Netdev which listens for control-plane gRPC traffic.
@@ -27,7 +28,7 @@ usage()
 cat 1>&2 <<EOF
 Usage ${0##*/} [-h|?]
     -p NUM_HUGEPAGE: Number of 2MB hugepages, default 2048
-    -g GRPC_PORT:    GRPC port name, default $DEFAULT_GRPC_PORT
+    -g GRPC_PORT:    GRPC port name, default pf0sf0
     -h|?             Show this help message
 EOF
 }
@@ -63,7 +64,7 @@ pre_check()
 	do
 		if [ ! -d /sys/class/net/$port ]; then
 			echo -e "${COLOR_RED}$port is missing ${COLOR_OFF}"
-			echo -e "${COLOR_RED}2 VFs on PF0, 1VF on PF1 are needed on x86 ${COLOR_OFF}"
+			echo -e "${COLOR_RED}3 VFs on PF0, 2 VFs on PF1 are needed on x86 ${COLOR_OFF}"
 			exit 1
 		fi
 	done

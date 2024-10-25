@@ -14,7 +14,7 @@ try:
 except ImportError:
     from pipes import quote
 
-__version__='v1.1.0'
+__version__='v1.7.9'
 
 class JsonRpcOpofException(Exception):
     def __init__(self, message):

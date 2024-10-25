@@ -1,0 +1,99 @@
+#
+# Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES, ALL RIGHTS RESERVED.
+#
+# This software product is a proprietary product of NVIDIA CORPORATION &
+# AFFILIATES (the "Company") and all right, title, and interest in and to the
+# software product, including all associated intellectual property rights, are
+# and shall remain exclusively with the Company.
+#
+# This software product is governed by the End User License Agreement
+# provided with the software product.
+#
+variables:
+  VERSION: 1.1.0
+  GRPC_INSTALL_DIR: /opt/mellanox/grpc-1.30.0
+  GRPC_TARBALL: grpc-1.30.0.tgz
+  BUILD_IMAGE: $CI_REGISTRY_IMAGE:doca_260_grpc_130
+
+default:
+  image: $BUILD_IMAGE
+
+stages:
+  - prep_stage
+  - build_stage
+  - test_stage
+  - package_stage
+
+prep-grpc:
+  stage: prep_stage
+  image: docker:20.10.16
+  services:
+  - docker:20.10.16-dind
+  tags:
+    - cpu/arm
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker image pull $BUILD_IMAGE || true
+    - docker build . 
+      -f scripts/Dockerfile.grpc 
+      -t $BUILD_IMAGE --cache-from $BUILD_IMAGE
+      --build-arg GRPC_REPO_DIR=$CI_PROJECT_DIR/subprojects/grpc
+      --build-arg GRPC_INSTALL_DIR=/opt/mellanox/grpc-1.30.0
+    - docker push $BUILD_IMAGE
+
+build-opof:
+  stage: build_stage
+  tags:
+    - cpu/arm
+  before_script:
+    - git config --global url."https://${GITHUB_TOKEN}:@github.com/".insteadOf "https://github.com/"
+  script:
+    - meson build && ninja -C build
+  artifacts:
+    paths:
+      - build/src/nv_opof
+      - build/test/unittest/test_nv_opof
+
+test-opof:
+  stage: test_stage
+  image: nvcr.io/nvidia/doca/doca:2.6.0-base-rt
+  tags:
+    - cpu/arm
+  before_script:
+    - apt update && apt install -y libev4
+    - cp build/src/nv_opof /usr/sbin
+  script:
+    - nv_opof --version
+    - build/test/unittest/test_nv_opof
+
+package-opof-deb:
+  stage: package_stage
+  tags:
+    - cpu/arm
+  before_script:
+    - rm -f ../*.deb
+    - apt update && apt install -y debhelper dh-make
+    - git config --global url."https://${GITHUB_TOKEN}:@github.com/".insteadOf "https://github.com/"
+  script:
+    - dpkg-buildpackage -rfakeroot -us -uc -b
+    - mv ../*.deb .
+  artifacts:
+    paths:
+      - nv-opof*.deb
+
+package-opof:
+  stage: package_stage
+  image: docker:20.10.16
+  services:
+  - docker:20.10.16-dind
+  tags:
+    - cpu/arm
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker image pull $CI_REGISTRY_IMAGE:$VERSION || true
+    - docker build . 
+      -f scripts/Dockerfile.opof 
+      -t $CI_REGISTRY_IMAGE:$VERSION --cache-from $CI_REGISTRY_IMAGE:$VERSION
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
+    - docker tag $CI_REGISTRY_IMAGE:$VERSION $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest

@@ -1,0 +1,62 @@
+#
+# Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES, ALL RIGHTS RESERVED.
+#
+# This software product is a proprietary product of NVIDIA CORPORATION &
+# AFFILIATES (the "Company") and all right, title, and interest in and to the
+# software product, including all associated intellectual property rights, are
+# and shall remain exclusively with the Company.
+#
+# This software product is governed by the End User License Agreement
+# provided with the software product.
+#
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nv-opof
+spec:
+  hostNetwork: true
+  containers:
+  - name: nv-opof
+    image: gitlab-server/firewall_offload:latest
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      # Current limitation of standalone-mode
+      privileged: true
+    volumeMounts:
+    - mountPath: /hugepages-2Mi
+      name: hugepage-2mi
+    - mountPath: /var/log
+      name: logvol
+      readOnly: false
+    resources:
+      limits:
+        hugepages-2Mi: "500Mi"
+      requests:
+        memory: "100Mi"
+        hugepages-2Mi: "500Mi"
+    # Enable these two lines to debug the container startup.
+    # Ex: crictl exec -it `crictl ps | grep opof | awk '{print $1}'` bash
+    #command: ["sleep"]
+    #args: ["infinity"]
+    env:
+      # Set according to the local setup
+      - name: SF_NUM_1
+        value: "4"
+      - name: SF_NUM_2
+        value: "5"
+      # Additional EAL flags, if needed
+      # (OPOF creates its own EAL Flags internally)
+      - name: EAL_FLAGS
+        value: ""
+      # App-Specific command line arguments
+      - name: APP_ARGS
+        value: "--console"
+  volumes:
+  - name: hugepage-2mi
+    emptyDir:
+      medium: HugePages-2Mi
+  - name: logvol
+    hostPath:
+      path: /tmp/nv_opof
+      type: DirectoryOrCreate

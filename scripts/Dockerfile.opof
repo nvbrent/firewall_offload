@@ -1,0 +1,19 @@
+FROM nvcr.io/nvidia/doca/doca:2.6.0-full-rt
+
+ARG SVC_DIR=/opt/mellanox/doca/services/nv_opof
+
+RUN apt update && apt install libev4 && \
+    mkdir -p $SVC_DIR
+
+ADD README.md                    $SVC_DIR
+ADD build/src/nv_opof            $SVC_DIR
+ADD scripts/opof_pre_check       $SVC_DIR
+ADD scripts/opof_setup           $SVC_DIR
+ADD scripts/opof_setup_highavail $SVC_DIR
+ADD scripts/opof.service         /etc/systemd/system
+ADD scripts/entrypoint.sh /
+RUN echo "PS1='(OPOF) \${debian_chroot:+(\$debian_chroot)}\\[\033[01;32m\\]\\u@\\H\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '" >> ~/.bashrc
+ENTRYPOINT ["/entrypoint.sh"]
+
+# To debug, comment out ENTRYPOINT and invoke with:
+# docker run -it --privileged --net=host -v /dev/hugepages:/dev/hugepages -v /var/run/openvswitch/db.sock:/var/run/openvswitch/db.sock [container] bash

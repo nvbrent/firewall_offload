@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES, ALL RIGHTS RESERVED.
+# Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES, ALL RIGHTS RESERVED.
 #
 # This software product is a proprietary product of NVIDIA CORPORATION &
 # AFFILIATES (the "Company") and all right, title, and interest in and to the
@@ -11,14 +11,17 @@
 #
 
 app_srcs = files([
-    'nv_opof.c',
     'nv_opof_flow.c',
+    'nv_opof_globals.c',
     'nv_opof_init.c',
+    'nv_opof_log.c',
     'nv_opof_rpc.c',
     'nv_opof_server.c',
     'nv_opof_thread.c',
     'nv_opof_util.c',
 ])
+
+main_src = files(['nv_opof.c'])
 
 app_dependencies = [
     dependency_libdpdk, 
@@ -35,26 +38,35 @@ app_inc_dirs = [
 
 bin_install_dir = '/usr/sbin'
 
-executable('nv_opof', app_srcs,
+nv_opof_lib = static_library('nv_opof_lib', app_srcs,
     override_options : [
         'warning_level=2',
         'werror=false'
     ],
-	dependencies : app_dependencies,
-	link_with : app_libs,
-	include_directories: app_inc_dirs,
-	install_dir : bin_install_dir,
-	install: true)
+    dependencies : app_dependencies,
+    include_directories: app_inc_dirs,
+    install: false)
+
+nv_opof = executable('nv_opof', main_src,
+    override_options : [
+        'warning_level=2',
+        'werror=false'
+    ],
+    dependencies : app_dependencies,
+    link_with : [app_libs, nv_opof_lib],
+    include_directories: app_inc_dirs,
+    install_dir : bin_install_dir,
+    install: true)
 
 install_data([
     'opof',
     '../scripts/opof_pre_check',
     '../scripts/opof_setup',
+    '../scripts/opof_setup_highavail',
     ], install_dir: bin_install_dir)
 install_data([
     '../scripts/opof.service', 
     ], install_dir: '/etc/systemd/system')
 install_data([
     '../README.md',
-    '../scripts/nv_opof.conf.default', 
     ], install_dir: '/opt/mellanox/nv_opof')

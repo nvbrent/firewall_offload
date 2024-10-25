@@ -37,20 +37,3 @@ lib_open_offload = static_library('opof_server', app_srcs,
 dependency_open_offload = declare_dependency(
     include_directories: app_inc_dirs, 
     link_with: lib_open_offload)
-
-test_srcs = [
-    'opof_session_client.cc',
-    'opof_clientlib.cc',
-    'opof_client_main.c',
-    'opof_util.cc',
-    'opof_test_util.c',
-    'opof_error.c',
-    'opof_run_tests.c',
-]
-test_open_offload = executable('test_opof', test_srcs,
-    override_options : ['warning_level=0'],
-	dependencies : app_dependencies,
-	link_with : app_libs,
-	include_directories: app_inc_dirs,
-	install_dir : bin_install_dir,
-	install: install_apps)

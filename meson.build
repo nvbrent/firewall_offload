@@ -19,7 +19,7 @@ project('opof', 'C', 'CPP',
 		'b_staticpic=true',
 		'prefix=/opt/mellanox/opof',
 		'c_std=c11', 
-		'cpp_std=c++11'
+		'cpp_std=c++14'
 		],
 	meson_version: '>= 0.56.0'
 )
@@ -59,4 +59,4 @@ proj_session_offload = subproject('session_offload')
 dependency_open_offload = proj_session_offload.get_variable('dependency_open_offload')
 
 subdir('src')
-
+subdir('test')

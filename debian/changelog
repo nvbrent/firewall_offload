@@ -1,5 +1,28 @@
-opof (1.1.0) UNRELEASED; urgency=medium
+nv-opof (1.7.9-doca260) UNRELEASED; urgency=medium
+
+  * Upgrade to DOCA 2.6
+
+nv-opof (1.7.7-doca250) UNRELEASED; urgency=medium
+
+  * Port to DOCA 2.5
+
+ -- Brent Schartung <bschartung@nvidia.com>  Thu, Feb 8 2024 15:42:21 +0000
+
+nv-opof (1.7.4-doca151) UNRELEASED; urgency=medium
+
+  * Implement dynamic next-hop
+
+ -- Brent Schartung <bschartung@nvidia.com>  Fri, 25 Aug 2023 15:42:21 +0000
+
+nv-opof (1.6.0-doca151) UNRELEASED; urgency=medium
+
+  * Port to new BFB; experimental open_offload schema; automated EAL command-line args
+
+ -- Brent Schartung <bschartung@nvidia.com>  Wed, 16 Aug 2023 14:15:30 +0000
+ 
+nv-opof (1.0.4) UNRELEASED; urgency=medium
 
   * Initial release.
 
  -- Bodong Wang <bodong@nvidia.com>  Fri, 12 Mar 2021 21:56:30 +0000
+

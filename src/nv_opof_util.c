@@ -33,22 +33,6 @@ static char *signals [] = {
 	[_NSIG] = "MAXSIGNUM",
 };
 
-void nv_opof_log_open(void)
-{
-	openlog("nv_opof", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_USER);
-	setlogmask(LOG_UPTO(LOG_INFO));
-}
-
-void nv_opof_log_close(void)
-{
-	closelog();
-}
-
-void nv_opof_set_log_level(int level)
-{
-	setlogmask(LOG_UPTO(level));
-}
-
 static void
 nv_opof_signal_handler(int signum, siginfo_t *info, void *ucontext)
 {
@@ -172,7 +156,6 @@ int nv_opof_config_load(const char *file_path)
 		snprintf(off_config_g.grpc_addr, GRPC_ADDR_SIZE, "%s",
 			 grpc_addr->valuestring);
 		off_config_g.grpc_port = grpc_port->valueint;
-		log_info("nv_opof grpc listening on %s:%d", off_config_g.grpc_addr, off_config_g.grpc_port);
 	}
 
 out_free:

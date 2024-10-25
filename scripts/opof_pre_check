@@ -15,7 +15,7 @@ get_eswitch_mode()
 	devlink dev eswitch show pci/${pci_dev} 2> /dev/null | cut -d ' ' -f 3
 }
 
-emu_manager=`lspci -nD -d 15b3: | grep 'a2d[26]\|101d' | cut -d ' ' -f 1 | head -n 1`
+emu_manager=`lspci -nD -d 15b3: | grep 'a2d[26c]\|101d' | cut -d ' ' -f 1 | head -n 1`
 
 echo "Wait for dev move to switch dev mode"
 while [ $timeout -le 60 ]

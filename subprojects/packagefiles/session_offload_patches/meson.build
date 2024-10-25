@@ -12,10 +12,6 @@
 
 project('session_offload', 'C', 'CPP')
 
-add_project_arguments(
-    '-D_GNU_SOURCE', # strsignal
-    language: ['C'])
-
 pkg = import('pkgconfig')
 
 dependency_grpc     = dependency('grpc++')

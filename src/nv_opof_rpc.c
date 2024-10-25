@@ -207,7 +207,7 @@ cJSON *add(jrpc_context *ctx, cJSON *params, cJSON *id)
 	cJSON *rte = cJSON_GetObjectItem(params, "rte");
 	cJSON *result = cJSON_CreateObject();
 
-	request.actType = 1;
+	request.actionParams.actionType = 1;
 	request.proto = 6;
 	request.ipver = _IPV4;
 	request.inlif = 1;

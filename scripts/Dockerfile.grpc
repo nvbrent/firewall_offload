@@ -1,0 +1,22 @@
+FROM nvcr.io/nvidia/doca/doca:2.6.0-devel
+
+ARG GRPC_PATCH_HOST_DIR=$PWD/scripts
+ARG GRPC_PATCH_NAME=bf3_grpc_130_third_party_abseil_cpp.patch
+ARG GRPC_REPO_DIR=$PWD/subprojects/grpc
+ARG GRPC_INSTALL_DIR=/opt/mellanox/grpc-1.30.0
+
+ADD scripts/$GRPC_PATCH_NAME .
+
+RUN \
+git clone --recurse-submodules -b v1.30.0 --depth 1 --shallow-submodules -c advice.detachedHead=false \
+    https://github.com/grpc/grpc ${GRPC_REPO_DIR} && \
+git -C ${GRPC_REPO_DIR}/third_party/abseil-cpp/ apply $PWD/${GRPC_PATCH_NAME} && \
+cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX="$GRPC_INSTALL_DIR" \
+    -S${GRPC_REPO_DIR} -B${GRPC_REPO_DIR}/cmake/_build -GNinja && \
+ninja -C ${GRPC_REPO_DIR}/cmake/_build install && \
+rm -rf ${GRPC_REPO_DIR}
+
+ENV PATH=${GRPC_INSTALL_DIR}/bin:$PATH
+ENV PKG_CONFIG_PATH=${GRPC_INSTALL_DIR}/lib/pkgconfig:$PKG_CONFIG_PATH
+
+RUN apt install -y libev-dev

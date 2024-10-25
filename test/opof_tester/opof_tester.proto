@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package openoffload.test;
+
+enum IP_VERSION{
+    _IPV4 = 0;
+    _IPV6 = 1;
+}
+
+enum PROTOCOL_ID {
+    _HOPOPT = 0;
+    _TCP = 6;
+    _UDP = 17;
+    reserved 1 to 5, 7 to 16, 18 to 255 ;
+}
+
+message HeartbeatCommand
+{
+    bool shutdown = 1;
+}
+
+message HeartbeatResponse
+{
+    bool status = 1;
+}
+
+message FlowDefinition
+{
+    int32 flow_id = 1; // pass flow_id=-1 to RemoveFlow to remove all
+    int32 interface = 2;
+    bool transmit = 3; // vs receive
+    int32 vlan_id = 24; // 0 for none
+    IP_VERSION eth_type = 4;
+    PROTOCOL_ID proto = 5;
+
+    int32 dmac_idx = 6; // select from the list of configured destimation mac addresses
+
+    // format: xx.xx.xx.xx/yy for ipv4, or standard ipv6 format string
+    string src_subnet = 11;
+    string dst_subnet = 12;
+    
+    int32 src_port = 13;
+    int32 dst_port = 14;
+    int32 tcp_flags = 15;
+
+    int32 payload_length = 21;
+
+    // optional expiration in seconds
+    double duration = 22;
+
+    // optional max packet rate
+    int64 max_pps = 23;
+}
+
+message FlowResponse
+{
+    int32 flow_id = 1;
+    bool success = 2;
+    string reason = 3;
+}
+
+message FlowStatsRequest
+{
+    // empty
+}
+
+message FlowStat
+{
+    int64 subnet_count = 1;
+    repeated string src_macs = 2;
+    repeated string dst_macs = 3;
+}
+
+message FlowStats
+{
+    map<int32, FlowStat> stats = 2;
+}
+
+service OpofTrafficGen {
+    rpc ProcessHeartbeat(HeartbeatCommand) returns (HeartbeatCommand);
+    rpc AddFlow(FlowDefinition) returns (FlowResponse);
+    rpc RemoveFlow(FlowDefinition) returns (FlowResponse);
+    rpc GetFlowStats(FlowStatsRequest) returns (FlowStats);
+}

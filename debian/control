@@ -1,12 +1,12 @@
-Source: opof
+Source: nv-opof
 Section: unknown
 Priority: optional
-Maintainer: Bodong Wang <bodong@nvidia.com>
+Maintainer: Brent Schartung <bschartung@vidia.com>
 Build-Depends: debhelper (>= 10)
 Standards-Version: 4.1.2
 Homepage: www.nvidia.com
 
-Package: opof
+Package: nv-opof
 Architecture: arm64
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Nvidia Firewall Open Offload Daemon

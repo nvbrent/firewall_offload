@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2021 Nvidia
+ * Copyright 2021-2024 Nvidia
  */
 
 #ifndef NV_OPOF_RPC_H

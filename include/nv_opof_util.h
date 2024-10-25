@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2021 Nvidia
+ * Copyright 2021-2024 Nvidia
  */
 
 #ifndef NV_OPOF_UTIL_H
@@ -14,20 +14,24 @@ extern "C" {
 
 #define CONFIG_FILE		"/opt/mellanox/nv_opof/nv_opof.conf"
 
+extern bool nv_opof_log_to_console_enable;
+
+void nv_opof_log(int level, const char *format, ...);
+
 #define log_error(M, ...) \
-	syslog(LOG_ERR, "[ERROR] %s:%d:%s: " M "\n", \
+	nv_opof_log(LOG_ERR, "[ERROR] %s:%d:%s: " M "\n", \
                     __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define log_info(M, ...) \
-	syslog(LOG_INFO,  "[INFO]  %s:%d:%s: " M "\n", \
+	nv_opof_log(LOG_INFO,  "[INFO]  %s:%d:%s: " M "\n", \
                     __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define log_debug(M, ...) \
-	syslog(LOG_DEBUG, "[DEBUG] %s:%d:%s: " M "\n", \
+	nv_opof_log(LOG_DEBUG, "[DEBUG] %s:%d:%s: " M "\n", \
                     __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define log_warn(M, ...) \
-	syslog(LOG_WARNING, "[WARNING] %s:%d:%s: " M "\n", \
+	nv_opof_log(LOG_WARNING, "[WARNING] %s:%d:%s: " M "\n", \
                     __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 void nv_opof_signal_handler_install(void);
